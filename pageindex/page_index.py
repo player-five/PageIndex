@@ -1003,7 +1003,7 @@ async def tree_parser(page_list, opt, doc=None, logger=None):
     return toc_tree
 
 
-def page_index_main(doc, opt=None):
+async def page_index_main(doc, opt=None):
     logger = JsonLogger(doc)
     
     is_valid_pdf = (
@@ -1019,12 +1019,12 @@ def page_index_main(doc, opt=None):
     logger.info({'total_page_number': len(page_list)})
     logger.info({'total_token': sum([page[1] for page in page_list])})
     
-    structure = asyncio.run(tree_parser(page_list, opt, doc=doc, logger=logger))
+    structure = await tree_parser(page_list, opt, doc=doc, logger=logger)
     if opt.if_add_node_id == 'yes':
         write_node_id(structure)    
     if opt.if_add_node_summary == 'yes':
         add_node_text(structure, page_list)
-        asyncio.run(generate_summaries_for_structure(structure, model=opt.model))
+        await generate_summaries_for_structure(structure, model=opt.model)
         remove_structure_text(structure)
         if opt.if_add_node_text == 'yes':
             add_node_text_with_labels(structure, page_list)
@@ -1041,7 +1041,7 @@ def page_index_main(doc, opt=None):
     }
 
 
-def page_index(doc, model=None, toc_check_page_num=None, max_page_num_each_node=None, max_token_num_each_node=None,
+async def page_index(doc, model=None, toc_check_page_num=None, max_page_num_each_node=None, max_token_num_each_node=None,
                if_add_node_id=None, if_add_node_summary=None, if_add_doc_description=None, if_add_node_text=None):
     
     user_opt = {
@@ -1049,7 +1049,7 @@ def page_index(doc, model=None, toc_check_page_num=None, max_page_num_each_node=
         if arg != "doc" and value is not None
     }
     opt = ConfigLoader().load(user_opt)
-    return page_index_main(doc, opt)
+    return await page_index_main(doc, opt)
 
 
 
