@@ -21,9 +21,14 @@ CHATGPT_API_KEY = os.getenv("CHATGPT_API_KEY")
 
 
 def count_tokens(text, model):
-    enc = tiktoken.encoding_for_model(model)
+    try:
+        enc = tiktoken.encoding_for_model(model)
+    except KeyError as e:
+        logging.error(f"Error getting encoding for model: {e}, using o200k_base default encoding")
+        enc = tiktoken.get_encoding("o200k_base")
     tokens = enc.encode(text)
     return len(tokens)
+
 
 def ChatGPT_API_with_finish_reason(model, prompt, api_key=CHATGPT_API_KEY, chat_history=None):
     max_retries = 10
